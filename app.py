@@ -1,5 +1,5 @@
 import streamlit as st
-from db import fetch, execute
+from  db import fetch, execute
 
 st.title("📱 Messenger Project - Users CRUD")
 
