@@ -1,12 +1,16 @@
 import mysql.connector
 import pandas as pd
+from dotenv import load_dotenv
+import os
+# .env 파일 불러오기
+load_dotenv()
 
 def get_connection():
     conn = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="k1g2h3123@",
-        database="ChatAnalysis",
+        host=os.getenv("DB_HOST"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        database=os.getenv("DB_DATABASE"),
     )
     return conn
 
