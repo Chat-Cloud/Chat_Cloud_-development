@@ -2,7 +2,12 @@ import streamlit as st
 
 def main_page():
     st.sidebar.title("📌 메뉴")
-    menu = st.sidebar.radio("이동", ["홈", "채팅방", "프로필", "로그아웃"])
+    menu = st.sidebar.radio("메뉴", ["홈", "친구", "채팅방", "프로필", "로그아웃"])
+
+    if menu == "친구":
+        st.session_state.page = "friends"
+        st.rerun()
+
 
     if menu == "홈":
         st.title(f"환영합니다, {st.session_state.user['username']}님!")
