@@ -21,7 +21,7 @@ def fetch(query, params=None):
     cursor.execute(query, params)
     rows = cursor.fetchall()
     conn.close()
-    return pd.DataFrame(rows)
+    return rows
 
 # --- INSERT, UPDATE, DELETE (Commit 필요) ---
 def execute(query, params=None):
