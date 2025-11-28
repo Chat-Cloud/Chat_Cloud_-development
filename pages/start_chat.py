@@ -2,8 +2,11 @@ import streamlit as st
 from db import fetch, execute
 
 def start_chat_page():
-    params = st.experimental_get_query_params()
-    friend_id = int(params.get("friend_id",[0])[0])
+    friend_id = st.session_state.get("friend_id", None)
+    if friend_id is None:
+        st.error("친구 ID를 찾을 수 없습니다.")
+        return
+
     my_id = st.session_state.user["user_id"]
 
     # 1) 기존 채팅방 있는지 확인
@@ -17,19 +20,28 @@ def start_chat_page():
     """, (my_id, friend_id))
 
     if len(room) > 0:
-        # 이미 존재하는 방
         room_id = room[0]["room_id"]
+        
     else:
-        # 2) 새로운 1:1 채팅방 만들기
-        execute("INSERT INTO ChatRooms(room_name) VALUES (NULL)")
-        new_room = fetch("SELECT LAST_INSERT_ID() AS id")[0]["id"]
+        # 새로운 1:1 채팅방 생성
+        new_room = execute(
+            "INSERT INTO ChatRooms(room_name) VALUES (NULL)",
+            return_id=True
+        )
 
-        execute("INSERT INTO RoomMembers(room_id, user_id) VALUES (%s, %s)", (new_room, my_id))
-        execute("INSERT INTO RoomMembers(room_id, user_id) VALUES (%s, %s)", (new_room, friend_id))
+        execute(
+            "INSERT INTO RoomMembers(room_id, user_id) VALUES (%s, %s)",
+            (new_room, my_id)
+        )
+
+        execute(
+            "INSERT INTO RoomMembers(room_id, user_id) VALUES (%s, %s)",
+            (new_room, friend_id)
+        )
 
         room_id = new_room
 
-    # 3) 메시지 페이지로 이동
+    # 채팅방 이동
     st.session_state.page = "chat_messages"
     st.session_state.room_id = room_id
     st.rerun()

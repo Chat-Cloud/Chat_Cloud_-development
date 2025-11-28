@@ -24,9 +24,13 @@ def fetch(query, params=None):
     return rows
 
 # --- INSERT, UPDATE, DELETE (Commit 필요) ---
-def execute(query, params=None):
+def execute(query, params=None, return_id=False):
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute(query, params)
+    last_id = cursor.lastrowid
     conn.commit()
     conn.close()
+
+    if return_id:
+        return last_id

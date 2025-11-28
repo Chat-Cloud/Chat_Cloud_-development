@@ -21,10 +21,10 @@ def friends_page():
             background: white;
             margin-bottom: 10px;
             display: flex;
-            cursor: pointer;
+            justify-content: space-between;
+            align-items: center;
             box-shadow: 0 1px 4px rgba(0,0,0,0.1);
         }
-        .friend-card:hover { background: #f5f5f5; }
         .profile-img {
             width: 50px; height: 50px;
             border-radius: 18%;
@@ -35,23 +35,37 @@ def friends_page():
             align-items: center;
             font-size: 26px;
         }
+        .friend-info {
+            display: flex;
+            align-items: center;
+        }
         </style>
     """, unsafe_allow_html=True)
 
     for f in friends:
-        profile = f["profile_img"] or "😎"
 
-        card = f"""
-        <div class="friend-card" onclick="window.location.href='?page=start_chat&friend_id={f['user_id']}'">
-            <div class="profile-img">💛</div>
-            <div>
-                <div style="font-size:18px;font-weight:bold;">{f['username']}</div>
-                <div style="font-size:13px;color:#777;">1:1 대화 시작하기</div>
+        col1, col2 = st.columns([7, 2])
+
+        with col1:
+            st.markdown(f"""
+            <div class="friend-card">
+                <div class="friend-info">
+                    <div class="profile-img">💛</div>
+                    <div>
+                        <div style="font-size:18px;font-weight:bold;">{f['username']}</div>
+                        <div style="font-size:13px;color:#777;">친구와 1:1 채팅하기</div>
+                    </div>
+                </div>
             </div>
-        </div>
-        """
-        st.markdown(card, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
 
-    if st.button("뒤로가기"):
+        with col2:
+            # 🔥 진짜 Streamlit 버튼 (이 버튼이 핵심)
+            if st.button("채팅 시작", key=f"btn_{f['user_id']}"):
+                st.session_state.page = "start_chat"
+                st.session_state.friend_id = f["user_id"]
+                st.rerun()
+
+    if st.button("⬅ 메인으로"):
         st.session_state.page = "main"
         st.rerun()
