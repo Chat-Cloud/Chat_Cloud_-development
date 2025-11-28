@@ -7,35 +7,50 @@ from pages.home import main_page
 from pages.chat_rooms import chat_rooms_page
 from pages.chat_messages import chat_messages_page
 from pages.profile import profile_page
-st.set_page_config(page_title="Messenger Login", layout="centered")
+from pages.friends import friends_page
+from pages.start_chat import start_chat_page
 
-# -----------------------------------------------------
-# 세션 상태 초기화 설정
-# -----------------------------------------------------
+st.set_page_config(page_title="Messenger", layout="centered")
+
+# 1️⃣ 세션 초기화
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
 if "page" not in st.session_state:
     st.session_state.page = "login"
-    
-    
-# -----------------------------------------------------
-# 페이지 라우팅
-# -----------------------------------------------------
+
+
+# 2️⃣ 라우팅 (오직 한 곳에서만 처리)
 if not st.session_state.logged_in:
+
+    # 로그인 전
     if st.session_state.page == "login":
         login_page()
+
     elif st.session_state.page == "register":
         register_page()
+
 else:
-    # 로그인 상태
+
+    # 로그인 후
     if st.session_state.page == "main":
         main_page()
+
+    elif st.session_state.page == "friends":
+        friends_page()
+
+    elif st.session_state.page == "start_chat":
+        start_chat_page()
+
     elif st.session_state.page == "chat_rooms":
         chat_rooms_page()
+
     elif st.session_state.page == "chat_messages":
         chat_messages_page()
+
     elif st.session_state.page == "profile":
         profile_page()
+
     else:
+        # 기본 페이지
         main_page()
