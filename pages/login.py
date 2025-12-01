@@ -5,10 +5,19 @@ from db import fetch
 def login_page():
     st.header("🔐 로그인")
 
-    login_id = st.text_input("아이디")
-    password = st.text_input("비밀번호", type="password")
+    # ✅ form으로 묶으면, 마지막 입력창에서 Enter 치면 기본 submit 버튼이 눌린다
+    with st.form("login_form", clear_on_submit=False):
+        login_id = st.text_input("아이디")
+        password = st.text_input("비밀번호", type="password")
 
-    if st.button("로그인"):
+        spacer_left, col_login, col_register, spacer_right = st.columns([0.1, 2, 3, 10])
+        with col_login:
+            login_submitted = st.form_submit_button("로그인")
+        with col_register:
+            register_submitted = st.form_submit_button("회원가입")
+
+    # ✅ 로그인 버튼(또는 Enter) 눌렀을 때 처리
+    if login_submitted:
         user = fetch("SELECT * FROM Users WHERE login_id=%s", (login_id,))
 
         if len(user) == 0:
@@ -25,9 +34,7 @@ def login_page():
         else:
             st.error("비밀번호가 일치하지 않습니다.")
 
-    if st.button("회원가입"):
+    # ✅ 회원가입 버튼 눌렀을 때 처리
+    if register_submitted:
         st.session_state.page = "register"
         st.rerun()
-
-def login_test():
-    print("This is a test function in login.py")

@@ -9,8 +9,10 @@ from pages.chat_messages import chat_messages_page
 from pages.profile import profile_page
 from pages.friends import friends_page
 from pages.start_chat import start_chat_page
+from pages.chat_dashboard import chat_dashboard_page
 
 st.set_page_config(page_title="Messenger", layout="centered")
+
 
 # 1️⃣ 세션 초기화
 if "logged_in" not in st.session_state:
@@ -50,6 +52,10 @@ else:
 
     elif st.session_state.page == "profile":
         profile_page()
+    
+    # ✅ 새로 추가한 분석 대시보드 메뉴
+    elif st.session_state.page == "chat_dashboard":
+        chat_dashboard_page()
 
     else:
         # 기본 페이지
