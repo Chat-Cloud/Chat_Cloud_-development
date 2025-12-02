@@ -25,6 +25,22 @@ def load_data():
     )
 
     return df, keywords
+# 🔹 0. 페이지 맨 위쪽 어딘가에 CSS 한 번만 선언
+st.markdown(
+    """
+    <style>
+    /* border 있는 container에만 살짝 배경 주기 */
+    [data-testid="stContainer"] > div:has(> .stHeading) {
+        border-radius: 18px;
+        background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 1));
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+        padding: 1.0rem 1.2rem;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 
 
 def chat_dashboard_page():
@@ -77,25 +93,30 @@ def chat_dashboard_page():
 
 
     # ⚠️ 여기서는 set_page_config 호출하지 않음 (app.py에서 한 번만!)
-    st.title("카카오톡 대화 분석 대시보드")
+    st.title("건희님과의 대화는 어땠을까요? ")
 
     df, keywords = load_data()
 
+    # # =========================================
+    # # 📊 1. 전체 요약
+    # # =========================================
+    # st.header("전체 요약 통계")
+    # st.markdown('<div class="summary-section">', unsafe_allow_html=True)
+    # col1, col2, col3, col4 = st.columns(4)
+    # col1.metric("총 메시지 수", len(df))
+    # col2.metric("참여자 수", df["sender"].nunique())
+    # col3.metric("평균 메시지 길이", round(df["msg_len"].mean(), 1))
+    # col4.metric("평균 단어 수", round(df["word_count"].mean(), 1))
+    # st.markdown('</div>', unsafe_allow_html=True)  # 👉 카드 끝
+        # 😊 2. 감정 분석 — neutral 포함 & 제외
     # =========================================
-    # 📊 1. 전체 요약
-    # =========================================
-    st.header("전체 요약 통계")
+    with st.container(border=True):
+        st.header("대화의 감정 상태는 어땠을까요?")
+        st.markdown(
+            "<span style='font-size:0.9rem; opacity:0.8;'>발신자별 감정 비율을 neutral 포함/제외로 비교해봤어요.</span>",
+            unsafe_allow_html=True,
+        )
 
-    col1, col2, col3, col4 = st.columns(4)
-    col1.metric("총 메시지 수", len(df))
-    col2.metric("참여자 수", df["sender"].nunique())
-    col3.metric("평균 메시지 길이", round(df["msg_len"].mean(), 1))
-    col4.metric("평균 단어 수", round(df["word_count"].mean(), 1))
-
-    # =========================================
-    # 😊 2. 감정 분석 — neutral 포함 & 제외
-    # =========================================
-    st.header("감정 분석")
 
     emotion_order = ["very_negative", "negative", "neutral", "positive", "very_positive"]
     colors = {
@@ -175,13 +196,16 @@ def chat_dashboard_page():
 
     st.markdown("---")
     
+    
+        # 3. 시간대별 감정 변화 — neutral 포함 & 제외
     # =========================================
-    # 3. 시간대별 감정 변화 — neutral 포함 & 제외
-    # =========================================
-    # =========================================
-    # 3. 시간대별 감정 변화 — neutral 포함 & 제외
-    # =========================================
-    st.header("시간대별 감정 변화")
+    with st.container(border=True):
+        st.header("시간대별로 감정의 변화를 분석해봤어요")
+        st.markdown(
+            "<span style='font-size:0.9rem; opacity:0.8;'>하루 중 언제 감정이 더 올라가고 내려갔는지 살펴봤어요.</span>",
+            unsafe_allow_html=True,
+        )
+
 
     emotion_by_hour = df.groupby(["hour", "emotion"]).size().reset_index(name="count")
 
@@ -236,11 +260,16 @@ def chat_dashboard_page():
         st.plotly_chart(fig, use_container_width=True)
     st.markdown("---")
 
-
-    # =========================================
+    # ========================================= 
     # ⏰ 4. 시간대별 전체 메시지 빈도
     # =========================================
-    st.header("시간대별 전체 메시지 빈도")
+    with st.container(border=True):
+        st.header("메시지가 활발했던 시간대는 언제일까요?")
+        st.markdown(
+            "<span style='font-size:0.9rem; opacity:0.8;'>하루 중 어떤 시간대에 대화가 가장 많았는지 보여줍니다.</span>",
+            unsafe_allow_html=True,
+        )
+
 
     hour_count = df.groupby("hour").size().reset_index(name="count")
 
@@ -283,7 +312,20 @@ def chat_dashboard_page():
         "very_positive": "#2E4A7D"   # 딥 네이비
     }
 
-    st.header("행동 패턴 분석")
+    action_colors = {
+        "질문": "#69A0C3",
+        "이모티콘": "#A3B9A9",
+        "사진": "#E69F86",
+        "동영상": "#B7415E",
+        "very_positive": "#2E4A7D"
+    }
+
+    with st.container(border=True):
+        st.header("대화 패턴은 어땠을까요?")
+        st.markdown(
+            "<span style='font-size:0.9rem; opacity:0.8;'>질문, 이모티콘, 사진, 동영상이 얼마나 자주 쓰였는지 시각화했어요.</span>",
+            unsafe_allow_html=True,
+        )
 
     action_df = (
         df.groupby("sender")[["is_question", "is_emoji", "is_photo", "is_video"]]
@@ -351,7 +393,12 @@ def chat_dashboard_page():
     한 메시지에서 감지된 모든 패턴의 **총 개수**를 점수로 사용합니다.  
     예: `사랑해❤️❤️ 귀여워` → 점수 4
     """)
-    st.header("애정 표현 분석")
+    with st.container(border=True):
+        st.header("상대방과의 애정도를 확인해봐요")
+        st.markdown(
+            "<span style='font-size:0.9rem; opacity:0.8;'>누가 더 자주 애정 표현을 했는지 하트 그래프로 표현했어요.</span>",
+            unsafe_allow_html=True,
+        )
 
     
 
@@ -456,7 +503,13 @@ def chat_dashboard_page():
     # 🔍 7 & 🌏 8. 키워드 네트워크 (2열 레이아웃)
     # =========================================
 
-    st.header("💬 키워드 네트워크 분석")
+    with st.container(border=True):
+        st.header("💬 주요 관심사는 이렇게 나타났어요")
+        st.markdown(
+            "<span style='font-size:0.9rem; opacity:0.8;'>대화에서 자주 등장한 키워드들을 네트워크로 시각화했어요.</span>",
+            unsafe_allow_html=True,
+        )
+
 
     col_left, col_right = st.columns(2)  # 2열 레이아웃
 
@@ -570,6 +623,7 @@ def chat_dashboard_page():
             ax.set_title(f"{sender_selected}님의 키워드 네트워크", fontsize=12)
             ax.axis("off")
             st.pyplot(fig)
+            
 
 
     # ------------------------------------------------
@@ -702,7 +756,16 @@ def chat_dashboard_page():
     # 🔍 7 & 🌏 8. 워드클라우드 (2열 레이아웃 적용)
     # =========================================
 
-    st.header("💬 워드클라우드 시각화")
+    
+        # 🔍 7 & 🌏 8. 워드클라우드 (2열 레이아웃 적용)
+    # =========================================
+
+    with st.container(border=True):
+        st.header("💬 워드클라우드 시각화")
+        st.markdown(
+            "<span style='font-size:0.9rem; opacity:0.8;'>단어의 크기로 자주 등장한 표현을 한눈에 확인할 수 있어요.</span>",
+            unsafe_allow_html=True,
+        )
 
     col_left, col_right = st.columns(2)
 
@@ -752,3 +815,9 @@ def chat_dashboard_page():
         wc2.generate_from_frequencies(word_freq)
         st.image(wc2.to_array(), caption="전체 대화 워드클라우드")
 
+    # =============== 🔹 메인으로 버튼 ===============
+        st.markdown('<div class="back-btn">', unsafe_allow_html=True)
+        if st.button("⬅ 메인으로", key="back_main_from_rooms"):
+            st.session_state.page = "main"
+            st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)
